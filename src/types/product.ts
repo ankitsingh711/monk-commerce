@@ -1,14 +1,16 @@
-export interface ProductVariant {
-    id: number;
-    product_id: number;
-    title: string;
-    price: string;
-  }
-  
-  export interface Product {
-    id: number;
-    title: string;
-    image: { src: string };
-    variants: ProductVariant[];
-  }
-  
+export interface Product {
+  id: number;
+  title: string;
+  variants: Variant[];
+  image: { src: string };
+  showVariants: boolean;
+  discount: number;
+  discountType?: String; 
+}
+
+
+export interface Variant {
+  title: string;
+  price: number;
+  discount?: number;
+}

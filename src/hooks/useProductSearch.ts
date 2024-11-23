@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { fetchProducts } from '../services/api';
-import { Product } from '../types/product';
+import { useState } from "react";
+import { fetchProducts } from "../services/api";
+import { Product } from "../types/product";
 
 export const useProductSearch = (search: string) => {
   const [products, setProducts] = useState<Product[]>([]);
