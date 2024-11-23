@@ -8,7 +8,12 @@ import {
   Button,
   TextField,
   CircularProgress,
+  Typography,
+  Grid,
+  Divider,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { Product } from "../types/product";
 
 interface ProductPickerModalProps {
@@ -28,17 +33,14 @@ const ProductPickerModal: React.FC<ProductPickerModalProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Filter available products based on search query
   const filteredProducts = availableProducts.filter((product) =>
     product.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Simulate loading state (useful if data is fetched)
   useEffect(() => {
     if (open) {
       setLoading(true);
-      // Simulate a delay to show the spinner (remove this in real scenarios)
-      setTimeout(() => setLoading(false), 500); // adjust this delay as needed
+      setTimeout(() => setLoading(false), 500);
     }
   }, [open]);
 
@@ -63,52 +65,160 @@ const ProductPickerModal: React.FC<ProductPickerModalProps> = ({
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 400,
+          width: { xs: "90%", sm: 600 },
           bgcolor: "background.paper",
           boxShadow: 24,
-          p: 4,
+          borderRadius: 2,
+          overflow: "hidden",
         }}
       >
-        <h2>Select Products</h2>
-        {/* Search Bar */}
-        <TextField
-          label="Search Products"
-          variant="outlined"
-          fullWidth
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ marginBottom: "16px" }}
-        />
-        
-        {/* Show loading spinner when filtering products */}
+        {/* Header */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            bgcolor: "primary.main",
+            color: "white",
+            px: 2,
+            py: 1,
+          }}
+        >
+          <Typography variant="h6">Select Products</Typography>
+          <IconButton onClick={onClose} sx={{ color: "white" }}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        {/* Search Field */}
+        <Box sx={{ p: 2 }}>
+          <TextField
+            label="Search Products"
+            variant="outlined"
+            fullWidth
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ marginBottom: 2 }}
+          />
+        </Box>
+
+        {/* Product List */}
         {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "200px",
+            }}
+          >
             <CircularProgress />
           </Box>
         ) : (
-          <List>
+          <Box
+            sx={{
+              maxHeight: "300px",
+              overflowY: "auto",
+              px: 2,
+            }}
+          >
             {filteredProducts.length === 0 ? (
-              <p>No products found</p>
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                sx={{ textAlign: "center", mt: 2 }}
+              >
+                No products found
+              </Typography>
             ) : (
-              filteredProducts.slice(0, 10).map((product) => (
-                <ListItem key={product.id} sx={{ display: "flex", alignItems: "center" }}>
-                  <Checkbox
-                    checked={selected.some((p) => p.id === product.id)}
-                    onChange={() => toggleSelect(product)}
-                  />
-                  {product.title || "Unnamed Product"}
-                </ListItem>
-              ))
+              <List>
+                {filteredProducts.slice(0, 10).map((product) => (
+                  <ListItem
+                    key={product.id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      paddingY: 1,
+                      transition: "background-color 0.3s",
+                      "&:hover": {
+                        backgroundColor: "action.hover",
+                      },
+                    }}
+                    divider
+                  >
+                    <Checkbox
+                      checked={selected.some((p) => p.id === product.id)}
+                      onChange={() => toggleSelect(product)}
+                      sx={{ mr: 2 }}
+                    />
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item>
+                        {product.image ? (
+                          <img
+                            src={product.image.src}
+                            alt={product.title}
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "4px",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <Box
+                            sx={{
+                              width: "50px",
+                              height: "50px",
+                              backgroundColor: "grey.300",
+                              borderRadius: "4px",
+                            }}
+                          />
+                        )}
+                      </Grid>
+                      <Grid item xs>
+                        <Typography variant="subtitle1">{product.title}</Typography>
+                        {product.variants && product.variants.length > 0 && (
+                          <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            sx={{ mt: 0.5 }}
+                          >
+                            Variants:{" "}
+                            {product.variants.map((v) => v.title).join(", ")}
+                          </Typography>
+                        )}
+                      </Grid>
+                    </Grid>
+                  </ListItem>
+                ))}
+              </List>
             )}
-          </List>
+          </Box>
         )}
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end", marginTop: "16px" }}>
-          <Button onClick={handleSave} variant="contained" sx={{ backgroundColor: "green", color: "white", marginRight: 2 }}>
-            Save
-          </Button>
-          <Button onClick={onClose} variant="outlined">
+        {/* Actions */}
+        <Divider />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            p: 2,
+            bgcolor: "grey.100",
+          }}
+        >
+          <Button
+            onClick={onClose}
+            variant="outlined"
+            sx={{ marginRight: 1 }}
+          >
             Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            color="primary"
+          >
+            Save
           </Button>
         </Box>
       </Box>

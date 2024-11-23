@@ -1,20 +1,26 @@
 import React from "react";
-import { Button } from "@mui/material";
+import { Button, Box } from "@mui/material";
 
 interface AddProductButtonProps {
   addParent: () => void;
 }
 
 const AddProductButton: React.FC<AddProductButtonProps> = ({ addParent }) => (
-  <div style={{ display: "flex", justifyContent: "center", margin: "20px" }}>
+  <Box sx={{ display: "flex", justifyContent: "center", margin: "20px" }}>
     <Button
       variant="contained"
-      sx={{ backgroundColor: "green", color: "white" }}
+      sx={{
+        backgroundColor: "green",
+        color: "white",
+        textTransform: "none",
+        "&:hover": { backgroundColor: "darkgreen" },
+        padding: "10px 20px",
+      }}
       onClick={addParent}
     >
-      Add Product
+      + Add Product
     </Button>
-  </div>
+  </Box>
 );
 
 export default AddProductButton;

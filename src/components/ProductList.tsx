@@ -23,7 +23,7 @@ const ProductList: React.FC<ProductListProps> = ({
       variants: [],
       image: { src: "" },
       showVariants: false,
-      discount: 0
+      discount: 0,
     };
     setProducts([...products, newProduct]);
   };
@@ -31,24 +31,44 @@ const ProductList: React.FC<ProductListProps> = ({
   const onDragEnd = (result: any) => {
     if (!result.destination) return;
     if (result.source.index === result.destination.index) return;
-  
+
     const reordered = Array.from(products);
     const [removed] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, removed);
     setProducts(reordered);
   };
-  
 
   return (
-    <div>
+    <div style={{ padding: "16px" }}>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="product-list">
           {(provided) => (
             <List {...provided.droppableProps} ref={provided.innerRef}>
               {products.map((product, index) => (
-                <Draggable key={index} draggableId={product.id.toString()} index={index}>
-                  {(provided) => (
-                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                <Draggable
+                  key={product.id}
+                  draggableId={product.id.toString()}
+                  index={index}
+                >
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={{
+                        ...provided.draggableProps.style,
+                        marginBottom: "12px",
+                        borderRadius: "8px",
+                        padding: "16px",
+                        boxShadow: snapshot.isDragging
+                          ? "0 4px 12px rgba(0, 0, 0, 0.2)"
+                          : "0 2px 8px rgba(0, 0, 0, 0.1)",
+                        backgroundColor: snapshot.isDragging
+                          ? "#f8f9fa"
+                          : "#ffffff",
+                        transition: "background-color 0.3s ease",
+                      }}
+                    >
                       <ProductItem
                         product={product}
                         onRemove={() =>
@@ -60,6 +80,7 @@ const ProductList: React.FC<ProductListProps> = ({
                           setProducts(updatedProducts);
                         }}
                         onEditPicker={() => onEdit(index)}
+                        showVariants={product.showVariants}
                       />
                     </div>
                   )}

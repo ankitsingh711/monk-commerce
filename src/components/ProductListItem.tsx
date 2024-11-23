@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   IconButton,
   TextField,
-  Button,
   Collapse,
   List,
   ListItem,
@@ -21,6 +20,7 @@ interface ProductItemProps {
   onRemove: () => void;
   onEdit: (updatedProduct: Product) => void;
   onEditPicker: () => void;
+  showVariants: boolean;
 }
 
 const ProductItem: React.FC<ProductItemProps> = ({
@@ -28,47 +28,50 @@ const ProductItem: React.FC<ProductItemProps> = ({
   onRemove,
   onEdit,
   onEditPicker,
+  showVariants,
 }) => {
-  const [expanded, setExpanded] = useState(false);
-  const [discountType, setDiscountType] = useState<any>(
-    product.discountType || "flat"
-  );
-
-  const toggleExpand = () => setExpanded(!expanded);
+  const [expanded, setExpanded] = useState(showVariants);
 
   const handleChange = (field: string, value: any) => {
     onEdit({ ...product, [field]: value });
   };
 
-  const handleDiscountTypeChange = (
+  const handleVariantVisibilityChange = (
     event: React.ChangeEvent<{ value: unknown }>
   ) => {
-    const newType = event.target.value as string;
-    setDiscountType(newType);
-    onEdit({ ...product, discountType: newType });
+    const newVisibility = event.target.value as string;
+    setExpanded(newVisibility === "show");
+    onEdit({ ...product, showVariants: newVisibility === "show" });
   };
 
   return (
     <div className="product-item">
       <ListItem
         className="product-row"
-        style={{ display: "flex", alignItems: "center" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "8px 16px",
+        }}
       >
-        <DragHandleIcon />
+        <DragHandleIcon style={{ color: "#888" }} />
         <TextField
           value={product.title}
           onChange={(e) => handleChange("title", e.target.value)}
-          style={{ flex: 1, marginRight: 16 }}
+          label="Product Title"
+          variant="outlined"
+          size="small"
+          style={{ flex: 1 }}
         />
-        <FormControl style={{ width: 120, marginRight: 16 }}>
-          <InputLabel>Discount Type</InputLabel>
+        <FormControl style={{ width: 120 }}>
+          <InputLabel>Show Variants</InputLabel>
           <Select
-            value={discountType}
-            onChange={handleDiscountTypeChange}
-            label="Discount Type"
+            value={expanded ? "show" : "hide"}
+            onChange={handleVariantVisibilityChange}
           >
-            <MenuItem value="flat">Flat off</MenuItem>
-            <MenuItem value="percent">% off</MenuItem>
+            <MenuItem value="show">Show</MenuItem>
+            <MenuItem value="hide">Hide</MenuItem>
           </Select>
         </FormControl>
 
@@ -77,29 +80,25 @@ const ProductItem: React.FC<ProductItemProps> = ({
           type="number"
           value={product.discount || ""}
           onChange={(e) => handleChange("discount", parseFloat(e.target.value))}
-          style={{ width: 100, marginRight: 16 }}
+          size="small"
+          style={{ width: 100 }}
         />
-        <IconButton onClick={onEditPicker}>
-          <EditIcon />
+
+        <IconButton onClick={onEditPicker} size="small">
+          <EditIcon color="primary" />
         </IconButton>
-        <IconButton onClick={onRemove}>
-          <CloseIcon />
+        <IconButton onClick={onRemove} size="small">
+          <CloseIcon color="error" />
         </IconButton>
-        <Button
-          onClick={toggleExpand}
-          variant="text"
-          style={{ marginLeft: 16 }}
-        >
-          {expanded ? "Hide variants" : "Show variants"}
-        </Button>
       </ListItem>
+
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <List>
           {product.variants.map((variant, index) => (
             <ListItem key={index} style={{ paddingLeft: 32 }}>
-              <DragHandleIcon style={{ marginRight: 8 }} />
               <TextField
                 value={variant.title}
+                label={`Variant ${index + 1}`}
                 onChange={(e) =>
                   handleChange(
                     "variants",
@@ -108,9 +107,9 @@ const ProductItem: React.FC<ProductItemProps> = ({
                     )
                   )
                 }
+                size="small"
                 style={{ flex: 1, marginRight: 16 }}
               />
-
               <TextField
                 label="Discount"
                 type="number"
@@ -125,6 +124,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
                     )
                   )
                 }
+                size="small"
                 style={{ width: 100 }}
               />
             </ListItem>
